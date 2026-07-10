@@ -1,0 +1,16 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Google credentials
+credentials.json
+token.json
+
+# Personal files
+Git Credentials.txt
+
+# VS Code settings
+.vscode/
