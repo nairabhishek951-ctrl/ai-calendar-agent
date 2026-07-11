@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 
 from ai.parser import parse_event
+from ai.intent_detector import detect_intent
+from commands.delete_event import delete_event
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -130,15 +132,18 @@ def main():
 
     print("SUCCESS! Connected to Google Calendar.")
 
-    print("\nChoose an option")
-    print("1. Create Event")
-    print("2. Show Today's Schedule")
+    print("\n🤖 ASTRA")
+    print("\nHow can I help you today?")
 
-    choice = input("\nEnter your choice: ")
+    user_input = input("\n> ")
 
-    if choice == "1":
+    intent = detect_intent(user_input)
+
+    if intent == "CREATE_EVENT":
         create_event(service)
-    elif choice == "2":
+    elif intent == "SHOW_SCHEDULE":
         show_today_schedule(service)
+    elif intent == "DELETE_EVENT":
+        delete_event(service, user_input)
     else:
-        print("Invalid choice.")
+        print("Sorry, I didn't understand that request.")
