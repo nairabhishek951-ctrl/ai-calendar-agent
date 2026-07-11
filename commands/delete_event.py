@@ -13,11 +13,11 @@ def _clean_search_query(user_input):
     return " ".join(words).strip()
 
 
-def _get_today_events(service):
+def _get_upcoming_events(service):
     now = datetime.now()
 
     start = datetime(now.year, now.month, now.day)
-    end = start + timedelta(days=1)
+    end = start + timedelta(days=30)
 
     events_result = service.events().list(
         calendarId="primary",
@@ -37,7 +37,7 @@ def delete_event(service, user_input):
         print("No matching event found.")
         return
 
-    events = _get_today_events(service)
+    events = _get_upcoming_events(service)
     matching_events = []
 
     for event in events:
