@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
-from event_parser import parse_event
+
+from ai.parser import parse_event
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
@@ -71,6 +73,56 @@ def create_event(service):
     print(f"Start: {created_event['start'].get('dateTime')}")
 
 
+def show_today_schedule(service):
+    print()
+    print("══════════════════════════════════")
+    print("📅 Today's Schedule")
+    print("══════════════════════════════════")
+    print()
+
+    now = datetime.now()
+
+    start = datetime(now.year, now.month, now.day)
+    end = start + timedelta(days=1)
+
+    events_result = service.events().list(
+        calendarId="primary",
+        timeMin=start.isoformat() + "Z",
+        timeMax=end.isoformat() + "Z",
+        singleEvents=True,
+        orderBy="startTime"
+    ).execute()
+
+    events = events_result.get("items", [])
+
+    if not events:
+        print("No events scheduled today.")
+        return
+
+    count = 0
+
+    for event in events:
+        start_time = event["start"].get(
+            "dateTime",
+            event["start"].get("date")
+        )
+
+        start_datetime = datetime.fromisoformat(
+            start_time.replace("Z", "+00:00")
+        )
+
+        formatted_time = start_datetime.strftime("%I:%M %p")
+
+        print(f"⏰ {formatted_time}")
+        print(f"   {event['summary']}")
+        print()
+
+        count += 1
+
+    print("──────────────────────────────────")
+    print(f"Total Events: {count}")
+
+
 def main():
     print("\nConnecting to Google Calendar...")
 
@@ -78,8 +130,15 @@ def main():
 
     print("SUCCESS! Connected to Google Calendar.")
 
-    create_event(service)
+    print("\nChoose an option")
+    print("1. Create Event")
+    print("2. Show Today's Schedule")
 
+    choice = input("\nEnter your choice: ")
 
-if __name__ == "__main__":
-    main()
+    if choice == "1":
+        create_event(service)
+    elif choice == "2":
+        show_today_schedule(service)
+    else:
+        print("Invalid choice.")
